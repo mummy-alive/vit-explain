@@ -5,6 +5,8 @@ from PIL import Image
 from torchvision import transforms
 import numpy as np
 import cv2
+import os 
+from pathlib import Path
 
 from vit_rollout import VITAttentionRollout
 from vit_grad_rollout import VITAttentionGradRollout
@@ -47,6 +49,8 @@ def disable_fused_attn(model):
 
 if __name__ == '__main__':
     args = get_args()
+    out_dir = Path(str(args.category_index))        # 예: Path("243")
+    out_dir.mkdir(parents=True, exist_ok=True)  
     model = torch.hub.load('facebookresearch/deit:main', 
         'deit_tiny_patch16_224', pretrained=True)
     model.eval()
@@ -77,7 +81,7 @@ if __name__ == '__main__':
         print("Doing Gradient Attention Rollout")
         grad_rollout = VITAttentionGradRollout(model, discard_ratio=args.discard_ratio)
         mask = grad_rollout(input_tensor, args.category_index)
-        name = "grad_rollout_{}_{:.3f}_{}_{}.png".format(args.category_index,
+        name =  out_dir / "grad_rollout_{}_{:.3f}_{}_{}.png".format(args.category_index,
             args.discard_ratio, args.head_fusion, args.save_id)
 
 

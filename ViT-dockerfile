@@ -1,9 +1,14 @@
 FROM pytorch/pytorch:2.7.1-cuda11.8-cudnn9-runtime
+
 WORKDIR /app
+
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
 RUN apt-get update -y
 RUN apt-get install -y libgl1-mesa-glx
 RUN apt-get install -y libglib2.0-0
+
+RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update -y
 
 COPY . .
