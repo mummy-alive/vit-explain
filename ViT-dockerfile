@@ -1,6 +1,6 @@
 FROM pytorch/pytorch:2.7.1-cuda11.8-cudnn9-runtime
 
-WORKDIR /app
+WORKDIR /workspace/vit-explain
 
 COPY requirements.txt .
 

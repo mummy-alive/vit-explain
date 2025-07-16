@@ -6,11 +6,11 @@ from torchvision import transforms
 import numpy as np
 import cv2
 import os 
-from transformers import AutoModel, CLIPVisionModel
+from transformers import CLIPVisionModel, CLIPImageProcessor
 from pathlib import Path
+from vit_rollout_clip import CLIPVITAttentionRollout
+from vit_grad_rollout_clip import CLIPViTAttentionRollout
 
-from vit_rollout import VITAttentionRollout
-from vit_grad_rollout import VITAttentionGradRollout
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -36,6 +36,10 @@ def get_args():
 
     return args
 
+def extract_vit(base_model): 
+    for name, module in base_model.named_modules():
+        print(name, type(module))
+
 def show_mask_on_image(img, mask):
     img = np.float32(img) / 255
     heatmap = cv2.applyColorMap(np.uint8(255 * mask), cv2.COLORMAP_JET)
@@ -50,13 +54,17 @@ def disable_fused_attn(model):
 
 if __name__ == '__main__':
     args = get_args()
-    out_dir = Path(f'DeiT/{str(args.category_index)}')        # 예: Path("243")
+    out_dir = Path(f'CLIP-ViT/{str(args.category_index)}')        # 예: Path("243")
     out_dir.mkdir(parents=True, exist_ok=True)  
-    model = torch.hub.load('facebookresearch/deit:main', 
-        'deit_tiny_patch16_224', pretrained=True)
+    model = CLIPVisionModel.from_pretrained(       # Vision-only Video-LLaMA2 uses clip-vit as visual encoder. See https://huggingface.co/DAMO-NLP-SG/VideoLLaMA2.1-7B-AV#vision-only-checkpoints
+        "openai/clip-vit-large-patch14-336",     # Solely loading Vision Model of clip-vit
+        torch_dtype="auto",
+        low_cpu_mem_usage=True)
+    clip_processor = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14-336")
+
     model.eval()
 
-    disable_fused_attn(model)
+    # disable_fused_attn(model)
     
     if args.use_cuda:
         model = model.cuda()
@@ -68,19 +76,21 @@ if __name__ == '__main__':
     ])
     img = Image.open(args.image_path)
     img = img.resize((224, 224))
-    input_tensor = transform(img).unsqueeze(0)
+    inputs = clip_processor(images=img, return_tensors="pt")
+    input_tensor = inputs["pixel_values"]    
+    
     if args.use_cuda:
         input_tensor = input_tensor.cuda()
 
     if args.category_index is None:
         print("Doing Attention Rollout")
-        attention_rollout = VITAttentionRollout(model, head_fusion=args.head_fusion, 
+        attention_rollout = CLIPVITAttentionRollout(model, head_fusion=args.head_fusion, 
             discard_ratio=args.discard_ratio)
         mask = attention_rollout(input_tensor)
         name = out_dir / "attention_rollout_{:.3f}_{}_{}.png".format(args.discard_ratio, args.head_fusion, args.save_id)
     else:
         print("Doing Gradient Attention Rollout")
-        grad_rollout = VITAttentionGradRollout(model, discard_ratio=args.discard_ratio)
+        grad_rollout = CLIPViTAttentionRollout(model, discard_ratio=args.discard_ratio)
         mask = grad_rollout(input_tensor, args.category_index)
         name =  out_dir / "grad_rollout_{}_{:.3f}_{}_{}.png".format(args.category_index,
             args.discard_ratio, args.head_fusion, args.save_id)
