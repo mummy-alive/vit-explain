@@ -14,7 +14,7 @@ data
 Note that `your_room.jpg` shall be the wide image, while the other four images are flat.
 
 ## 2. Run module
-Run shell script below \
+Run shell script below:
 ```
 bash run_vit.sh
 ```
