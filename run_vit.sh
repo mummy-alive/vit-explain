@@ -9,21 +9,21 @@ for d in "${DATA_ROOT}"/*/; do
     folder=$(basename "$d")              # 예: seq001, car_A, ...
     echo "[*] Processing folder: $folder"
 
-    # for view in view_back view_front view_left view_right; do
-    #     img="$d/${view}.jpg"
-    #     if [[ ! -f "$img" ]]; then
-    #         echo "    [!] Missing $img (skip)"
-    #         continue
-    #     fi
+    for view in view_back view_front view_left view_right; do
+        img="$d/${view}.jpg"
+        if [[ ! -f "$img" ]]; then
+            echo "    [!] Missing $img (skip)"
+            continue
+        fi
 
-    #     python3 vit_explain_clip.py \
-    #         --image_path "$img" \
-    #         --output_root "$OUT_ROOT" \
-    #         --run_name "$folder" \
-    #         --head_fusion max \
-    #         --discard_ratio 0.7
-    #         # --category_index 559   # 필요 시 주석 해제
-    # done
+        python3 vit_explain_clip.py \
+            --image_path "$img" \
+            --output_root "$OUT_ROOT" \
+            --run_name "$folder" \
+            --head_fusion max \
+            --discard_ratio 0.7
+            # --category_index 559   # 필요 시 주석 해제
+    done
     
     # Wide image 처리
     wide="$d/${folder}.jpg"
