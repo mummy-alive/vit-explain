@@ -1,3 +1,23 @@
+# Custom Guideline
+## 1. Image Setup
+Add your input images in `data`
+the input configuration shall look like: \
+```
+data
+ ㄴ your_room_name
+   ㄴ your_room_name.jpg
+   ㄴ view_back.jpg
+   ㄴ view_front.jpg
+   ㄴ view_left.jpg
+   ㄴ view_right.jpg
+```
+Note that `your_room.jpg` shall be the wide image, while the other four images are flat.
+
+## 2. Run module
+Run shell script below \
+```bash run_vit.sh```
+
+
 # Explainability for Vision Transformers (in PyTorch)
 
 This repository implements methods for explainability in Vision Transformers.
