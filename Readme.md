@@ -1,7 +1,7 @@
 # Custom Guideline
 ## 1. Image Setup
-Add your input images in `data`
-the input configuration shall look like: 
+Add your input images in `data` .\
+Your input configuration shall look like: 
 ```
 data
  ㄴ your_room_name
@@ -15,7 +15,9 @@ Note that `your_room.jpg` shall be the wide image, while the other four images a
 
 ## 2. Run module
 Run shell script below \
-```bash run_vit.sh```
+```
+bash run_vit.sh
+```
 
 
 # Explainability for Vision Transformers (in PyTorch)
