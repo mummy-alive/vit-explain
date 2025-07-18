@@ -1,7 +1,7 @@
 # Custom Guideline
 ## 1. Image Setup
 Add your input images in `data`
-the input configuration shall look like: \
+the input configuration shall look like: 
 ```
 data
  ㄴ your_room_name
